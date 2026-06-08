@@ -298,6 +298,60 @@ button:hover,
     font-weight: 600;
 }
 
+.processing-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: none;
+    place-items: center;
+    padding: 24px;
+    background: rgba(15, 23, 42, 0.42);
+    backdrop-filter: blur(3px);
+}
+
+.processing-overlay.is-visible {
+    display: grid;
+}
+
+.processing-overlay__card {
+    width: min(420px, 100%);
+    padding: 28px;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    background: var(--card);
+    box-shadow: 0 24px 80px rgba(15, 23, 42, 0.24);
+    text-align: center;
+}
+
+.processing-overlay__card strong {
+    display: block;
+    margin-top: 16px;
+    font-size: 22px;
+}
+
+.processing-overlay__card p {
+    margin: 12px 0 0;
+    color: var(--muted);
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.processing-overlay__spinner {
+    width: 54px;
+    height: 54px;
+    margin: 0 auto;
+    border: 5px solid #dbeafe;
+    border-top-color: var(--accent);
+    border-radius: 999px;
+    animation: processing-spin 0.9s linear infinite;
+}
+
+@keyframes processing-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .error {
     color: var(--danger);
     font-weight: 700;

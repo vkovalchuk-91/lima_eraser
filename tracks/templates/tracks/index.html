@@ -160,6 +160,14 @@
         {% endif %}
     </main>
 
+    <div id="processing-overlay" class="processing-overlay" role="status" aria-live="polite" aria-hidden="true">
+        <div class="processing-overlay__card">
+            <div class="processing-overlay__spinner" aria-hidden="true"></div>
+            <strong>Трек обробляється...</strong>
+            <p>Будуємо карти та шукаємо аномальні точки. Це може зайняти трохи часу для великих GPX-файлів.</p>
+        </div>
+    </div>
+
     <footer class="app-footer">
         <div class="app-footer__card">
             &copy; 2026
@@ -182,8 +190,30 @@
         const uploadForm = document.getElementById("upload-form");
         const gpxInput = document.getElementById("gpx_file");
         const uploadHint = document.getElementById("upload-hint");
+        const processingOverlay = document.getElementById("processing-overlay");
+
+        function showProcessingOverlay(message) {
+            if (!processingOverlay) {
+                return;
+            }
+
+            const title = processingOverlay.querySelector("strong");
+            if (title && message) {
+                title.textContent = message;
+            }
+
+            processingOverlay.classList.add("is-visible");
+            processingOverlay.setAttribute("aria-hidden", "false");
+        }
 
         if (uploadForm && gpxInput) {
+            uploadForm.addEventListener("submit", () => {
+                showProcessingOverlay("Трек обробляється...");
+                uploadForm.querySelectorAll("button").forEach((element) => {
+                    element.disabled = true;
+                });
+            });
+
             gpxInput.addEventListener("change", () => {
                 if (!gpxInput.files.length) {
                     return;
@@ -192,6 +222,7 @@
                 if (uploadHint) {
                     uploadHint.textContent = "Обробляю GPX і будую карти...";
                 }
+                showProcessingOverlay("Трек обробляється...");
                 uploadForm.requestSubmit();
             });
         }
