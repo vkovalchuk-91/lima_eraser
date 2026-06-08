@@ -74,6 +74,21 @@
             processingOverlay.setAttribute("aria-hidden", "false");
         }
 
+        function hideProcessingOverlay() {
+            if (!processingOverlay) {
+                return;
+            }
+
+            processingOverlay.classList.remove("is-visible");
+            processingOverlay.setAttribute("aria-hidden", "true");
+        }
+
+        window.addEventListener("pageshow", (event) => {
+            if (event.persisted) {
+                hideProcessingOverlay();
+            }
+        });
+
         document.querySelectorAll(".js-strava-clean-link").forEach((link) => {
             link.addEventListener("click", () => {
                 showProcessingOverlay();

@@ -17,8 +17,10 @@ MAX_REALISTIC_SPEED_MPS = 33.3  # 120 km/h, generous for cycling descents and GP
 MIN_MOVING_SPEED_MPS = 0.5
 DISPLAY_POINT_LIMIT = 3000
 MAX_LOCAL_ANOMALY_POINTS = 240
+MAX_LARGE_JUMP_ANOMALY_POINTS = 1000
 MAX_LOCAL_ANOMALY_SECONDS = 300
 MIN_LOCAL_DEVIATION_M = 80.0
+MIN_LARGE_JUMP_DISTANCE_M = 1000.0
 
 
 @dataclass(frozen=True)
@@ -161,15 +163,55 @@ def _remove_local_route_deviations(points: list[TrackPoint]) -> set[int]:
 
     keep = {point.index for point in points}
     local_threshold = _local_deviation_threshold(points)
-    bad_edges = [_is_bad_edge(previous, current, local_threshold) for previous, current in zip(points, points[1:])]
+    edge_distances = [
+        _haversine((previous.lat, previous.lon), (current.lat, current.lon))
+        for previous, current in zip(points, points[1:])
+    ]
+    bad_edges = [
+        _is_bad_edge(previous, current, distance, local_threshold)
+        for previous, current, distance in zip(points, points[1:], edge_distances)
+    ]
+    _discard_deviation_ranges(
+        points=points,
+        keep=keep,
+        candidate_edges=bad_edges,
+        local_threshold=local_threshold,
+        max_anomaly_points=MAX_LOCAL_ANOMALY_POINTS,
+    )
 
+    large_jump_threshold = max(MIN_LARGE_JUMP_DISTANCE_M, local_threshold * 8)
+    large_jump_edges = [distance >= large_jump_threshold for distance in edge_distances]
+    _discard_deviation_ranges(
+        points=points,
+        keep=keep,
+        candidate_edges=large_jump_edges,
+        local_threshold=local_threshold,
+        max_anomaly_points=MAX_LARGE_JUMP_ANOMALY_POINTS,
+    )
+
+    return keep
+
+
+def _discard_deviation_ranges(
+    points: list[TrackPoint],
+    keep: set[int],
+    candidate_edges: list[bool],
+    local_threshold: float,
+    max_anomaly_points: int,
+) -> None:
     start_edge = 0
-    while start_edge < len(bad_edges):
-        if not bad_edges[start_edge]:
+    while start_edge < len(candidate_edges):
+        if not candidate_edges[start_edge]:
             start_edge += 1
             continue
 
-        end_edge = _matching_return_edge(points, bad_edges, start_edge, local_threshold)
+        end_edge = _matching_return_edge(
+            points=points,
+            candidate_edges=candidate_edges,
+            start_edge=start_edge,
+            local_threshold=local_threshold,
+            max_anomaly_points=max_anomaly_points,
+        )
         if end_edge is None:
             start_edge += 1
             continue
@@ -178,19 +220,18 @@ def _remove_local_route_deviations(points: list[TrackPoint]) -> set[int]:
             keep.discard(point.index)
         start_edge = end_edge + 1
 
-    return keep
-
 
 def _matching_return_edge(
     points: list[TrackPoint],
-    bad_edges: list[bool],
+    candidate_edges: list[bool],
     start_edge: int,
     local_threshold: float,
+    max_anomaly_points: int,
 ) -> int | None:
-    max_end_edge = min(len(bad_edges) - 1, start_edge + MAX_LOCAL_ANOMALY_POINTS)
+    max_end_edge = min(len(candidate_edges) - 1, start_edge + max_anomaly_points)
 
     for end_edge in range(start_edge + 1, max_end_edge + 1):
-        if not bad_edges[end_edge]:
+        if not candidate_edges[end_edge]:
             continue
 
         start_anchor = points[start_edge]
@@ -237,8 +278,12 @@ def _interior_points_deviate(points: list[TrackPoint], local_threshold: float) -
     )
 
 
-def _is_bad_edge(previous: TrackPoint, current: TrackPoint, local_threshold: float) -> bool:
-    distance = _haversine((previous.lat, previous.lon), (current.lat, current.lon))
+def _is_bad_edge(
+    previous: TrackPoint,
+    current: TrackPoint,
+    distance: float,
+    local_threshold: float,
+) -> bool:
     speed = _speed(previous, current)
     if speed is not None:
         return speed > MAX_REALISTIC_SPEED_MPS and distance >= local_threshold

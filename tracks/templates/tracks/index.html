@@ -211,6 +211,31 @@
             processingOverlay.setAttribute("aria-hidden", "false");
         }
 
+        function hideProcessingOverlay() {
+            if (!processingOverlay) {
+                return;
+            }
+
+            processingOverlay.classList.remove("is-visible");
+            processingOverlay.setAttribute("aria-hidden", "true");
+
+            if (uploadForm) {
+                uploadForm.querySelectorAll("button").forEach((element) => {
+                    element.disabled = false;
+                });
+            }
+
+            if (uploadHint) {
+                uploadHint.textContent = "Після вибору файлу GPX одразу почнеться обробка.";
+            }
+        }
+
+        window.addEventListener("pageshow", (event) => {
+            if (event.persisted) {
+                hideProcessingOverlay();
+            }
+        });
+
         if (uploadForm && gpxInput) {
             uploadForm.addEventListener("submit", () => {
                 showProcessingOverlay("Трек обробляється...");
