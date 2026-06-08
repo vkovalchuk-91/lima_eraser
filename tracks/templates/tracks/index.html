@@ -50,7 +50,7 @@
                                             <strong>{{ strava_athlete.firstname }} {{ strava_athlete.lastname }}</strong>
                                         </p>
                                         <div class="strava-connected-actions__buttons">
-                                            <a class="download secondary" href="{% url 'tracks:strava_activities' %}">Обрати активність</a>
+                                            <a class="download secondary js-strava-activities-link" href="{% url 'tracks:strava_activities' %}">Обрати активність</a>
                                             <a class="download secondary" href="{% url 'tracks:strava_logout' %}">Вийти зі Strava</a>
                                         </div>
                                     </div>
@@ -192,7 +192,7 @@
         const uploadHint = document.getElementById("upload-hint");
         const processingOverlay = document.getElementById("processing-overlay");
 
-        function showProcessingOverlay(message) {
+        function showProcessingOverlay(message, description) {
             if (!processingOverlay) {
                 return;
             }
@@ -200,6 +200,11 @@
             const title = processingOverlay.querySelector("strong");
             if (title && message) {
                 title.textContent = message;
+            }
+
+            const text = processingOverlay.querySelector("p");
+            if (text && description) {
+                text.textContent = description;
             }
 
             processingOverlay.classList.add("is-visible");
@@ -226,6 +231,15 @@
                 uploadForm.requestSubmit();
             });
         }
+
+        document.querySelectorAll(".js-strava-activities-link").forEach((link) => {
+            link.addEventListener("click", () => {
+                showProcessingOverlay(
+                    "Завантажую активності Strava...",
+                    "Отримуємо список активностей зі Strava. Це може зайняти кілька секунд."
+                );
+            });
+        });
 
         function readCoordinates(elementId) {
             return JSON.parse(document.getElementById(elementId).textContent);

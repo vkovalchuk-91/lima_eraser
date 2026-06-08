@@ -41,7 +41,7 @@
                                 <span>{{ activity.moving_time }} у русі</span>
                             </div>
                         </div>
-                        <a class="download secondary" href="{% url 'tracks:clean_strava_activity' activity.id %}">
+                        <a class="download secondary js-strava-clean-link" href="{% url 'tracks:clean_strava_activity' activity.id %}">
                             Очистити
                         </a>
                     </article>
@@ -53,5 +53,32 @@
             </section>
         {% endif %}
     </main>
+
+    <div id="processing-overlay" class="processing-overlay" role="status" aria-live="polite" aria-hidden="true">
+        <div class="processing-overlay__card">
+            <div class="processing-overlay__spinner" aria-hidden="true"></div>
+            <strong>Активність Strava обробляється...</strong>
+            <p>Завантажуємо GPS-точки зі Strava, очищуємо трек і готуємо карти. Це може зайняти трохи часу.</p>
+        </div>
+    </div>
+
+    <script>
+        const processingOverlay = document.getElementById("processing-overlay");
+
+        function showProcessingOverlay() {
+            if (!processingOverlay) {
+                return;
+            }
+
+            processingOverlay.classList.add("is-visible");
+            processingOverlay.setAttribute("aria-hidden", "false");
+        }
+
+        document.querySelectorAll(".js-strava-clean-link").forEach((link) => {
+            link.addEventListener("click", () => {
+                showProcessingOverlay();
+            });
+        });
+    </script>
 </body>
 </html>
