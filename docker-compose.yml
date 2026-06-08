@@ -9,8 +9,6 @@ services:
     env_file:
       - .env
     environment:
-      DJANGO_ALLOWED_HOSTS: "127.0.0.1,localhost,testserver"
-      DJANGO_DEBUG: "1"
       SQLITE_PATH: "/app/data/db.sqlite3"
     volumes:
       - ./docker-data:/app/data
