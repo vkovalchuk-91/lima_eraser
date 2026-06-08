@@ -27,6 +27,15 @@ docker compose up --build
 
 Після запуску відкрийте http://127.0.0.1:8000/. SQLite-база зберігається в `docker-data`, а очищені GPX-файли — у `media`.
 
+Для запуску за доменом через nginx додайте в `.env`:
+
+```text
+DJANGO_DEBUG=0
+DJANGO_ALLOWED_HOSTS=lima-eraser.pp.ua,www.lima-eraser.pp.ua,127.0.0.1,localhost
+DJANGO_CSRF_TRUSTED_ORIGINS=https://lima-eraser.pp.ua,https://www.lima-eraser.pp.ua,http://lima-eraser.pp.ua,http://www.lima-eraser.pp.ua
+STRAVA_REDIRECT_URI=https://lima-eraser.pp.ua/strava/callback/
+```
+
 ## Встановлення з нуля
 
 ```powershell
