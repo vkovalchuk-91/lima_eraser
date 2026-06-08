@@ -157,7 +157,7 @@ http://127.0.0.1:8000/
 docker compose up --build -d
 ```
 
-Щоб зупинити фоновий запуск:
+Щоб зупинити фоновий запуск: 
 
 ```powershell
 docker compose down
