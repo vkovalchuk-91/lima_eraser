@@ -1,0 +1,57 @@
+{% load static %}
+<!doctype html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Завантаження в Strava</title>
+    <link rel="stylesheet" href="{% static 'tracks/styles.css' %}">
+</head>
+<body>
+    <main class="page">
+        <section class="upload-card">
+            {% if success %}
+                <h1>Активність створено в Strava</h1>
+                {% if upload_id %}
+                    <p class="hint">Upload ID: <strong>{{ upload_id }}</strong></p>
+                {% endif %}
+                {% if activity_id %}
+                    <p class="hint">Activity ID: <strong>{{ activity_id }}</strong></p>
+                    <div class="upload-result-actions">
+                        <a class="download strava" href="{{ activity_url }}" target="_blank" rel="noopener">
+                            Відкрити активність у Strava
+                        </a>
+                    </div>
+                {% endif %}
+            {% elif processing %}
+                <p class="eyebrow">Strava</p>
+                <h1>Strava ще обробляє GPX</h1>
+                <p class="hint">{{ message }}</p>
+                {% if upload_id %}
+                    <p class="hint">Upload ID: <strong>{{ upload_id }}</strong></p>
+                    <form class="upload-result-actions" method="get" action="{% url 'tracks:strava_upload_status' upload_id %}">
+                        <button class="download strava" type="submit">Оновити статус</button>
+                    </form>
+                {% endif %}
+                <p class="hint">
+                    Це ще не означає, що активність створена. Якщо Strava відхилить файл,
+                    після оновлення тут з'явиться конкретна помилка.
+                </p>
+            {% else %}
+                <p class="eyebrow">Strava</p>
+                <h1>Не вдалося завантажити GPX</h1>
+                <p class="error">{{ message }}</p>
+                <p class="hint">
+                    Якщо помилка пов'язана з правами доступу, вийдіть зі Strava й увійдіть знову,
+                    щоб надати дозвіл activity:write.
+                </p>
+            {% endif %}
+
+            <div class="toolbar spaced">
+                <a class="text-link" href="{% url 'tracks:index' %}">На головну сторінку</a>
+                <a class="text-link" href="{% url 'tracks:strava_activities' %}">До активностей Strava</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,520 @@
+:root {
+    color-scheme: light;
+    --bg: #f4f7fb;
+    --card: #ffffff;
+    --text: #14213d;
+    --muted: #64748b;
+    --accent: #2563eb;
+    --accent-dark: #1d4ed8;
+    --border: #dbe4ef;
+    --danger: #b91c1c;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.page {
+    flex: 1;
+    width: min(1180px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 48px 0 24px;
+}
+
+.app-footer {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 4px 16px 26px;
+}
+
+.app-footer__card {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    max-width: 100%;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: #e5e7eb;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+    text-align: center;
+}
+
+.app-footer__social-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    color: #64748b;
+    text-decoration: none;
+    transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.app-footer__social-icon:hover {
+    color: #475569;
+    transform: translateY(-1px);
+}
+
+.app-footer__social-icon--telegram {
+    color: #229ed9;
+}
+
+.app-footer__social-icon--telegram:hover {
+    color: #168ac0;
+}
+
+.app-footer__social-icon--strava {
+    color: #fc4c02;
+}
+
+.app-footer__social-icon--strava:hover {
+    color: #dd3f00;
+}
+
+.app-footer__social-icon svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+.hero {
+    margin-bottom: 24px;
+}
+
+.hero h1 {
+    max-width: 780px;
+    margin: 0;
+    font-size: clamp(32px, 5vw, 56px);
+    line-height: 1;
+}
+
+.hero p:not(.eyebrow) {
+    max-width: 680px;
+    color: var(--muted);
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+.eyebrow {
+    margin: 0 0 8px;
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.source-card,
+.upload-card,
+.activity-card,
+.summary,
+.track-card {
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    background: var(--card);
+    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+}
+
+.source-card {
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.upload-card {
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.source-card__header {
+    margin-bottom: 20px;
+}
+
+.source-card__header h2,
+.source-option h3,
+.activity-card h2 {
+    margin: 0;
+}
+
+.source-options {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 18px;
+    align-items: stretch;
+}
+
+.source-option {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 18px;
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: #f8fafc;
+}
+
+.source-option p,
+.activity-card p {
+    color: var(--muted);
+}
+
+.option-label {
+    display: inline-flex;
+    margin-bottom: 8px;
+    border-radius: 999px;
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    padding: 5px 9px;
+    text-transform: uppercase;
+}
+
+.source-divider {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    align-self: center;
+    border-radius: 999px;
+    background: #e2e8f0;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.integration-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 12px;
+}
+
+.strava-connected-actions {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.strava-connected-actions .hint {
+    margin: 0;
+}
+
+.strava-connected-actions__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.upload-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+input[type="file"] {
+    width: 100%;
+    flex: 1 1 260px;
+    padding: 13px;
+    border: 1px dashed #9fb0c7;
+    border-radius: 14px;
+    background: #f8fafc;
+}
+
+button,
+.download {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 14px;
+    background: var(--accent);
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 800;
+    padding: 14px 20px;
+    text-decoration: none;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.download.secondary {
+    background: #0f172a;
+}
+
+.download.secondary:hover {
+    background: #1e293b;
+}
+
+.download.strava {
+    background: #fc4c02;
+}
+
+.download.strava:hover {
+    background: #dd3f00;
+}
+
+.text-link {
+    color: var(--accent);
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.text-link:hover {
+    text-decoration: underline;
+}
+
+button:hover,
+.download:hover {
+    background: var(--accent-dark);
+    transform: translateY(-1px);
+}
+
+.js .manual-submit {
+    display: none;
+}
+
+.hint {
+    margin: 12px 0 0;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.error {
+    color: var(--danger);
+    font-weight: 700;
+}
+
+.panel {
+    margin: 18px 0 0;
+    padding: 18px 20px;
+    border-radius: 18px;
+    background: #fee2e2;
+}
+
+.ok {
+    color: #15803d;
+}
+
+.compact {
+    margin-bottom: 16px;
+}
+
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.toolbar.spaced {
+    margin: 24px 0 0;
+}
+
+.upload-result-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 18px 0 0;
+}
+
+.upload-result-actions + .hint {
+    margin-top: 18px;
+}
+
+.delete-reminder-card {
+    display: inline-flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 22px;
+    padding: 14px 16px;
+    border: 1px solid #fed7aa;
+    border-radius: 18px;
+    background: #fff7ed;
+    color: #9a3412;
+    font-weight: 800;
+}
+
+.delete-reminder-card__icon {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    background: #f97316;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.delete-reminder-card--block {
+    align-items: flex-start;
+    max-width: 760px;
+}
+
+.delete-reminder-card--block .hint {
+    color: #9a3412;
+}
+
+.upload-confirm-form {
+    display: grid;
+    justify-items: start;
+    gap: 14px;
+    margin-top: 18px;
+}
+
+.result-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.result-actions form {
+    margin: 0;
+}
+
+.activity-list {
+    display: grid;
+    gap: 16px;
+}
+
+.activity-card {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 24px;
+    align-items: center;
+    padding: 20px;
+}
+
+.activity-card > div {
+    flex: 1 1 320px;
+}
+
+.activity-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.activity-stats span {
+    border-radius: 999px;
+    background: #eef2ff;
+    color: #3730a3;
+    font-size: 13px;
+    font-weight: 800;
+    padding: 6px 10px;
+}
+
+
+.summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+    gap: 16px;
+    align-items: center;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.summary span,
+.stats span {
+    display: block;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.summary strong,
+.stats strong {
+    display: block;
+    margin-top: 6px;
+    font-size: 22px;
+}
+
+.maps {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.track-card {
+    overflow: hidden;
+}
+
+.track-card__header {
+    padding: 24px 24px 0;
+}
+
+.track-card h2 {
+    margin: 0;
+    font-size: 28px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    padding: 20px 24px;
+}
+
+.map {
+    height: 520px;
+    border-top: 1px solid var(--border);
+}
+
+@media (max-width: 900px) {
+    .summary,
+    .maps,
+    .stats,
+    .source-options,
+    .activity-card {
+        grid-template-columns: 1fr;
+    }
+
+    .activity-card {
+        display: grid;
+    }
+
+    .source-divider {
+        width: 100%;
+        height: auto;
+        padding: 8px 0;
+    }
+
+    .integration-actions {
+        justify-content: stretch;
+    }
+
+    .download {
+        text-align: center;
+    }
+
+    .app-footer {
+        padding-bottom: 24px;
+    }
+
+    .app-footer__card {
+        text-align: center;
+    }
+}

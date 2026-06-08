@@ -1,0 +1,227 @@
+{% load static %}
+<!doctype html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Очищення треку</title>
+    <script>document.documentElement.classList.add("js");</script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="{% static 'tracks/styles.css' %}">
+</head>
+<body>
+    <main class="page">
+        {% if not original and not cleaned %}
+            <section class="source-card">
+                <div class="source-card__header">
+                    <p class="eyebrow">Джерело треку</p>
+                    <h2>Оберіть один спосіб завантаження</h2>
+                </div>
+
+                <div class="source-options">
+                    <form id="upload-form" class="source-option" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div>
+                            <span class="option-label">Варіант 1</span>
+                            <h3>GPX-файл</h3>
+                            <p>Оберіть збережений `.gpx` трек, і додаток автоматично очистить його.</p>
+                        </div>
+                        <div class="upload-row">
+                            <input id="gpx_file" name="gpx_file" type="file" accept=".gpx,application/gpx+xml" required>
+                            <button class="manual-submit" type="submit">Очистити трек</button>
+                        </div>
+                        <p id="upload-hint" class="hint">Після вибору файлу GPX одразу почнеться обробка.</p>
+                    </form>
+
+                    <div class="source-divider">або</div>
+
+                    <div class="source-option">
+                        <div>
+                            <span class="option-label">Варіант 2</span>
+                            <h3>Strava</h3>
+                            <p>Увійдіть у Strava, оберіть активність зі списку, і додаток очистить її GPS-трек.</p>
+                        </div>
+                        <div class="integration-actions">
+                            {% if strava_configured %}
+                                {% if strava_athlete %}
+                                    <div class="strava-connected-actions">
+                                        <p class="hint">
+                                            Підключено:
+                                            <strong>{{ strava_athlete.firstname }} {{ strava_athlete.lastname }}</strong>
+                                        </p>
+                                        <div class="strava-connected-actions__buttons">
+                                            <a class="download secondary" href="{% url 'tracks:strava_activities' %}">Обрати активність</a>
+                                            <a class="download secondary" href="{% url 'tracks:strava_logout' %}">Вийти зі Strava</a>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <a class="download strava" href="{% url 'tracks:strava_login' %}">Увійти через Strava</a>
+                                {% endif %}
+                            {% else %}
+                                <p class="error">
+                                    Strava не налаштована. Додайте STRAVA_CLIENT_ID і STRAVA_CLIENT_SECRET.
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                {% if error %}
+                    <p class="error panel">{{ error }}</p>
+                {% endif %}
+            </section>
+        {% endif %}
+
+        {% if original and cleaned %}
+            <div class="toolbar">
+                <a class="text-link" href="{% url 'tracks:index' %}">На головну сторінку</a>
+            </div>
+
+            <section class="summary">
+                <div>
+                    <span>{{ source|default:"Файл" }}</span>
+                    <strong>{{ file_name }}</strong>
+                </div>
+                <div>
+                    <span>Статус очищення</span>
+                    {% if removed_count == 0 %}
+                        <strong class="ok">Очищення не потрібне</strong>
+                    {% else %}
+                        <strong>{{ removed_count }} з {{ original_count }}</strong>
+                    {% endif %}
+                </div>
+                <div>
+                    <span>Залишилось точок</span>
+                    <strong>{{ cleaned_count }}</strong>
+                </div>
+                {% if removed_count > 0 %}
+                    <div class="result-actions">
+                        <a class="download" href="{% url 'tracks:download' download_token %}">Завантажити очищений GPX</a>
+                        {% if strava_athlete %}
+                            <form method="post" action="{% url 'tracks:strava_upload' download_token %}">
+                                {% csrf_token %}
+                                <button class="download strava" type="submit">Завантажити в Strava</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </section>
+
+            <section class="maps">
+                <article class="track-card">
+                    <div class="track-card__header">
+                        <div>
+                            <p class="eyebrow">До очищення</p>
+                        </div>
+                    </div>
+                    <div class="stats">
+                        <div>
+                            <span>Відстань</span>
+                            <strong>{{ original.metrics.distance_km }} км</strong>
+                        </div>
+                        <div>
+                            <span>Середня швидкість</span>
+                            <strong>{{ original.metrics.average_speed_kmh }} км/год</strong>
+                        </div>
+                        <div>
+                            <span>Час у русі</span>
+                            <strong>{{ original.metrics.moving_time }}</strong>
+                        </div>
+                    </div>
+                    <div id="original-map" class="map"></div>
+                </article>
+
+                <article class="track-card">
+                    <div class="track-card__header">
+                        <div>
+                            <p class="eyebrow">Після очищення</p>
+                        </div>
+                    </div>
+                    <div class="stats">
+                        <div>
+                            <span>Відстань</span>
+                            <strong>{{ cleaned.metrics.distance_km }} км</strong>
+                        </div>
+                        <div>
+                            <span>Середня швидкість</span>
+                            <strong>{{ cleaned.metrics.average_speed_kmh }} км/год</strong>
+                        </div>
+                        <div>
+                            <span>Час у русі</span>
+                            <strong>{{ cleaned.metrics.moving_time }}</strong>
+                        </div>
+                    </div>
+                    <div id="cleaned-map" class="map"></div>
+                </article>
+            </section>
+
+            {{ original_coordinates|json_script:"original-coordinates" }}
+            {{ cleaned_coordinates|json_script:"cleaned-coordinates" }}
+        {% endif %}
+    </main>
+
+    <footer class="app-footer">
+        <div class="app-footer__card">
+            &copy; 2026
+            <strong>Volodymyr Kovalchuk</strong>
+            <a class="app-footer__social-icon app-footer__social-icon--telegram" href="https://t.me/Slengpack" target="_blank" rel="noopener" aria-label="Telegram @Slengpack">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M21.8 4.6 18.5 20c-.2 1.1-.9 1.4-1.8.9l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.1 9.3-8.4c.4-.4-.1-.6-.6-.2L5.9 13.5 1 12c-1.1-.3-1.1-1.1.2-1.6L20.3 3c.9-.3 1.7.2 1.5 1.6Z"/>
+                </svg>
+            </a>
+            <a class="app-footer__social-icon app-footer__social-icon--strava" href="https://www.strava.com/athletes/13755403" target="_blank" rel="noopener" aria-label="Strava Volodymyr Kovalchuk">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M15.387 17.944 13.298 13.828h-3.065L15.387 24l5.15-10.172h-3.066L15.387 17.944ZM10.463 8.229l2.836 5.599h4.172L10.463 0 3.461 13.828H7.63l2.833-5.599Z"/>
+                </svg>
+            </a>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const uploadForm = document.getElementById("upload-form");
+        const gpxInput = document.getElementById("gpx_file");
+        const uploadHint = document.getElementById("upload-hint");
+
+        if (uploadForm && gpxInput) {
+            gpxInput.addEventListener("change", () => {
+                if (!gpxInput.files.length) {
+                    return;
+                }
+
+                if (uploadHint) {
+                    uploadHint.textContent = "Обробляю GPX і будую карти...";
+                }
+                uploadForm.requestSubmit();
+            });
+        }
+
+        function readCoordinates(elementId) {
+            return JSON.parse(document.getElementById(elementId).textContent);
+        }
+
+        function renderMap(elementId, coordinates, color) {
+            const map = L.map(elementId);
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                maxZoom: 19,
+                attribution: "&copy; OpenStreetMap contributors",
+            }).addTo(map);
+
+            if (!coordinates.length) {
+                map.setView([50.4501, 30.5234], 11);
+                return;
+            }
+
+            const line = L.polyline(coordinates, { color, weight: 4, opacity: 0.9 }).addTo(map);
+            map.fitBounds(line.getBounds(), { padding: [24, 24] });
+        }
+
+        const originalElement = document.getElementById("original-coordinates");
+        const cleanedElement = document.getElementById("cleaned-coordinates");
+        if (originalElement && cleanedElement) {
+            renderMap("original-map", readCoordinates("original-coordinates"), "#dc2626");
+            renderMap("cleaned-map", readCoordinates("cleaned-coordinates"), "#16a34a");
+        }
+    </script>
+</body>
+</html>

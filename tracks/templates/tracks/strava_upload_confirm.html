@@ -1,0 +1,49 @@
+{% load static %}
+<!doctype html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Підтвердження завантаження в Strava</title>
+    <link rel="stylesheet" href="{% static 'tracks/styles.css' %}">
+</head>
+<body>
+    <main class="page">
+        <section class="upload-card">
+            <h1>Перед завантаженням у Strava</h1>
+            <div class="delete-reminder-card delete-reminder-card--block" role="alert">
+                <span class="delete-reminder-card__icon" aria-hidden="true">!</span>
+                <div>
+                    <strong>Зараз потрібно видалити активність, яка бралась як першоджерело.</strong>
+                    <p class="hint">
+                        Інакше Strava може не дати зберегти очищений трек, бо розпізнає його як дублікат.
+                    </p>
+                </div>
+            </div>
+
+            <div class="upload-result-actions">
+                <a class="download strava" href="{{ original_activity_url }}" target="_blank" rel="noopener">
+                    Відкрити активність-першоджерело
+                </a>
+            </div>
+
+            <form class="upload-confirm-form" method="post" action="{% url 'tracks:strava_upload' token %}">
+                {% csrf_token %}
+                <input type="hidden" name="source_deleted_confirmed" value="1">
+                <p class="hint">
+                    Натискайте кнопку нижче тільки після того, як видалили активність
+                    {{ original_activity_id }} у Strava.
+                </p>
+                <button class="download strava" type="submit">
+                    Я видалив першоджерело, завантажити очищений трек
+                </button>
+            </form>
+
+            <div class="toolbar spaced">
+                <a class="text-link" href="{% url 'tracks:index' %}">На головну сторінку</a>
+                <a class="text-link" href="{% url 'tracks:strava_activities' %}">До активностей Strava</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
