@@ -36,6 +36,18 @@ DJANGO_CSRF_TRUSTED_ORIGINS=https://lima-eraser.pp.ua,https://www.lima-eraser.pp
 STRAVA_REDIRECT_URI=https://lima-eraser.pp.ua/strava/callback/
 ```
 
+У nginx для production додайте окрему роздачу static/media перед proxy:
+
+```nginx
+location /static/ {
+    alias /home/slengpack/lima_eraser/staticfiles/;
+}
+
+location /media/ {
+    alias /home/slengpack/lima_eraser/media/;
+}
+```
+
 ## Встановлення з нуля
 
 ```powershell
