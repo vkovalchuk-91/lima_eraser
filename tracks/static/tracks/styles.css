@@ -441,6 +441,7 @@ button:hover,
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
+    justify-content: flex-end;
 }
 
 .result-actions form {
@@ -490,6 +491,10 @@ button:hover,
     margin-bottom: 24px;
 }
 
+.summary > div {
+    min-width: 0;
+}
+
 .summary span,
 .stats span {
     display: block;
@@ -504,6 +509,11 @@ button:hover,
     display: block;
     margin-top: 6px;
     font-size: 22px;
+}
+
+.summary > div:first-child strong {
+    overflow-wrap: anywhere;
+    line-height: 1.15;
 }
 
 .maps {
@@ -558,6 +568,15 @@ button:hover,
 
     .integration-actions {
         justify-content: stretch;
+    }
+
+    .result-actions {
+        justify-content: stretch;
+    }
+
+    .result-actions .download,
+    .result-actions form {
+        width: 100%;
     }
 
     .download {
